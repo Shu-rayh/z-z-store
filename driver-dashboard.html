@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Driver Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Optional Nav Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">Z&amp;Z CONVIENCE STORE Driver</a>
+      <ul class="nav-links">
+        <li><a href="driver-dashboard.html">Dashboard</a></li>
+        <li><button onclick="logoutUser()">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <h1>Driver Dashboard</h1>
+  <div id="orders-container">Loading orders...</div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    const user = getCurrentUser();
+
+    if (!user || user.role !== 'driver') {
+      alert('Access denied. Please login as a driver.');
+      window.location.href = 'driver-login.html';
+    }
+
+    const container = document.getElementById('orders-container');
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const pendingOrders = orders.filter(o => o.status !== 'delivered');
+
+    if (!pendingOrders.length) {
+      container.innerHTML = '<p>No orders to deliver.</p>';
+    } else {
+      container.innerHTML = '';
+      pendingOrders.forEach(order => renderOrder(order));
+    }
+
+    function renderOrder(order) {
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.id = `order-${order.id}`;
+
+      let total = 0;
+      let itemsHtml = '';
+
+      order.items.forEach(item => {
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+        itemsHtml += `<li>${item.name} × ${item.quantity} — R${subtotal.toFixed(2)}</li>`;
+      });
+
+      card.innerHTML = `
+        <h3>Order #${order.id}</h3>
+        <p><strong>Address:</strong> ${order.address}</p>
+        <ul class="order-items">${itemsHtml}</ul>
+        <p><strong>Total:</strong> R${total.toFixed(2)}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <button onclick="markDelivered(${order.id})">Mark as Delivered</button>
+      `;
+
+      container.appendChild(card);
+    }
+
+    function markDelivered(orderId) {
+      let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const idx = orders.findIndex(o => o.id === orderId);
+      if (idx === -1) return alert('Order not found.');
+
+      orders[idx].status = 'delivered';
+      localStorage.setItem('orders', JSON.stringify(orders));
+
+      // Remove from DOM
+      const card = document.getElementById(`order-${orderId}`);
+      if (card) card.remove();
+
+      if (document.getElementById('orders-container').children.length === 0) {
+        container.innerHTML = '<p>No orders to deliver.</p>';
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
+

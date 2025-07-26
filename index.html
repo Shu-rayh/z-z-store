@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grocery Store - Home</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- Nav Bar Start -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Z&amp;Z CONVIENCE STORE</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="account.html">Account</a></li>
+    </ul>
+  </div>
+</nav>
+<!-- Nav Bar End -->
+
+<script>
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const navLinks = document.getElementById('nav-links');
+
+  if (currentUser) {
+    const ordersLink = document.createElement('li');
+    ordersLink.innerHTML = '<a href="orders.html">Orders</a>';
+    navLinks.appendChild(ordersLink);
+  }
+</script>
+
+  <!-- Main Content -->
+  <header class="hero">
+    <h1>Welcome to GroceryStore</h1>
+    <p>Your one-stop shop for fresh groceries, delivered to your door.</p>
+    <a href="products.html" class="hero-btn">Start Shopping</a>
+  </header>
+
+</body>
+</html>

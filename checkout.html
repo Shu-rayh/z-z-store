@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- Nav Bar Start -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Z&amp;Z CONVIENCE STORE</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="account.html">Account</a></li>
+      <li id="orders-link" style="display: none;"><a href="orders.html">Orders</a></li>
+    </ul>
+  </div>
+</nav>
+<!-- Nav Bar End -->
+
+<main style="padding: 20px;">
+  <h1>Checkout</h1>
+  <div id="checkout-items"></div>
+  <form id="checkout-form">
+    <input type="text" id="address" placeholder="Delivery Address" required />
+    <button type="submit">Place Order</button>
+  </form>
+</main>
+
+<script>
+  // Load current user
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  if (!currentUser) {
+    alert("Please log in first.");
+    location.href = 'login.html';
+  }
+
+  // Show orders tab if logged in
+  document.getElementById('orders-link').style.display = 'inline-block';
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const itemDiv = document.getElementById('checkout-items');
+
+  // Display cart items
+  itemDiv.innerHTML = cart.map(p => `
+    <p>${p.name} × ${p.quantity} = R${(p.price * p.quantity).toFixed(2)}</p>
+  `).join('');
+
+  document.getElementById('checkout-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const address = document.getElementById('address').value;
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    const newOrder = {
+      id: Date.now(),
+      customerId: currentUser.id,
+      customerName: currentUser.username,
+      address,
+      items: cart,
+      total,
+      status: 'pending',
+      timestamp: new Date().toLocaleString()
+    };
+
+    // Save to global orders (optional)
+    const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    allOrders.push(newOrder);
+    localStorage.setItem('orders', JSON.stringify(allOrders));
+
+    // Save to current user's orders inside users array
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const userIndex = users.findIndex(u => u.username === currentUser.username);
+    if (userIndex !== -1) {
+      if (!users[userIndex].orders) users[userIndex].orders = [];
+      users[userIndex].orders.push(newOrder);
+
+      localStorage.setItem('users', JSON.stringify(users));
+      localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
+    }
+
+    localStorage.removeItem('cart');
+    alert("Order placed successfully!");
+    location.href = 'orders.html';
+  });
+</script>
+
+</body>
+</html>

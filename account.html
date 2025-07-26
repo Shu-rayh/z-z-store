@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Account</title>
+    <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafb;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Main content */
+    main {
+      flex-grow: 1;
+      max-width: 600px;
+      margin: 3rem auto;
+      padding: 1rem 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.1);
+      text-align: center;
+    }
+
+    main h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    main p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      background-color: #2e7d32;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #246b28;
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav Bar Start -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo" id="nav-logo">Z&amp;Z CONVIENCE STORE</a>
+      <ul class="nav-links" id="nav-links">
+        <!-- Links will be populated dynamically -->
+      </ul>
+    </div>
+  </nav>
+  <!-- Nav Bar End -->
+
+  <main>
+    <div id="account-section"></div>
+  </main>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    const navLinks = document.getElementById('nav-links');
+    const navLogo = document.getElementById('nav-logo');
+    const section = document.getElementById('account-section');
+
+    function buildAdminNav() {
+      navLogo.href = "admin-dashboard.html";
+      navLogo.textContent = "GroceryStore Admin";
+
+      navLinks.innerHTML = `
+        <li><a href="admin-dashboard.html">Products</a></li>
+        <li><a href="admin-orders.html">Admin Orders</a></li>
+        <li><a href="account.html">Account</a></li>
+      `;
+    }
+
+    function buildCustomerNav() {
+      navLogo.href = "index.html";
+      navLogo.textContent = "GroceryStore";
+
+      navLinks.innerHTML = `
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="account.html">Account</a></li>
+        <li><a href="orders.html">Orders</a></li>
+      `;
+    }
+
+    if (user) {
+      if (user.role === 'admin') {
+        buildAdminNav();
+      } else {
+        buildCustomerNav();
+      }
+
+      section.innerHTML = `
+        <h1>Welcome, ${user.username}!</h1>
+        <p><strong>User ID:</strong> ${user.id}</p>
+        <button onclick="logout()">Log Out</button>
+      `;
+    } else {
+      navLogo.href = "index.html";
+      navLogo.textContent = "GroceryStore";
+
+      navLinks.innerHTML = `
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="account.html">Account</a></li>
+      `;
+
+      section.innerHTML = `
+        <h1>You are not logged in.</h1>
+        <p>Please log in to view your account details.</p>
+        <button onclick="location.href='login.html'">Log In</button>
+      `;
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      alert("You have been logged out.");
+      location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

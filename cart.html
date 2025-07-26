@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    #cart-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .cart-item {
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .cart-item h2 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .cart-item p {
+      margin: 0.5rem 0;
+    }
+
+    .cart-item button {
+      padding: 6px 12px;
+      background-color: #f56565;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #total-price {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      color: #222;
+    }
+
+    button.checkout-btn {
+      display: block;
+      margin: 2rem auto;
+      padding: 12px 24px;
+      background-color: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+    }
+
+    button.checkout-btn:hover {
+      background-color: #16a34a;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav Bar Start -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Z&amp;Z CONVIENCE STORE</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="account.html">Account</a></li>
+    </ul>
+  </div>
+</nav>
+<!-- Nav Bar End -->
+
+<script>
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const navLinks = document.getElementById('nav-links');
+
+  if (currentUser) {
+    const ordersLink = document.createElement('li');
+    ordersLink.innerHTML = '<a href="orders.html">Orders</a>';
+    navLinks.appendChild(ordersLink);
+  }
+</script>
+
+<h1>Your Cart</h1>
+<div id="cart-container"></div>
+<h2 id="total-price">Total: R0.00</h2>
+<button class="checkout-btn" onclick="goToCheckout()">Proceed to Checkout</button>
+
+<script>
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const container = document.getElementById('cart-container');
+  let total = 0;
+
+  if (cart.length === 0) {
+    container.innerHTML = '<p style="text-align:center;">Your cart is empty.</p>';
+  } else {
+    container.innerHTML = '';
+    cart.forEach(product => {
+      total += product.price * product.quantity;
+
+      const item = document.createElement('div');
+      item.className = 'cart-item';
+      item.innerHTML = `
+        <img src="${product.image || ''}" alt="${product.name}"/>
+        <div>
+          <h2>${product.name}</h2>
+          <p>R${product.price.toFixed(2)} x ${product.quantity}</p>
+          <button onclick="removeFromCart(${product.id})">Remove</button>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  document.getElementById('total-price').textContent = `Total: R${total.toFixed(2)}`;
+
+  function removeFromCart(id) {
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart = cart.filter(item => item.id !== id);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    location.reload();
+  }
+
+  function goToCheckout() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user) {
+      alert("Please log in before checking out.");
+      window.location.href = 'login.html';
+      return;
+    }
+
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    window.location.href = 'checkout.html';
+  }
+</script>
+
+</body>
+</html>

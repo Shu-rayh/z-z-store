@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Test Admin</title>
+</head>
+<body>
+  <h1>Create Admin User</h1>
+  <button id="create-admin">Create Admin</button>
+  <p id="msg"></p>
+
+  <script>
+    document.getElementById('create-admin').addEventListener('click', () => {
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+
+      if (users.some(u => u.username === 'admin1')) {
+        document.getElementById('msg').textContent = 'Admin already exists!';
+        return;
+      }
+
+      const newAdmin = {
+        id: Date.now(),
+        username: 'admin1',
+        password: 'adminpass',
+        role: 'admin'
+      };
+
+      users.push(newAdmin);
+      localStorage.setItem('users', JSON.stringify(users));
+      document.getElementById('msg').textContent = 'Admin user created!';
+    });
+  </script>
+</body>
+</html>

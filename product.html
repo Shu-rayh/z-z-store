@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Details</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+      margin: 0;
+      padding: 0;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #product-name {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    #product-image {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    #product-price {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    #add-to-cart-btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #add-to-cart-btn:hover {
+      background-color: #45a049;
+    }
+
+
+  </style>
+</head>
+<body>
+
+<!-- Nav Bar Start -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Z&amp;Z CONVIENCE STORE</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="account.html">Account</a></li>
+    </ul>
+  </div>
+</nav>
+<!-- Nav Bar End -->
+
+<script>
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const navLinks = document.getElementById('nav-links');
+
+  if (currentUser) {
+    const ordersLink = document.createElement('li');
+    ordersLink.innerHTML = '<a href="orders.html">Orders</a>';
+    navLinks.appendChild(ordersLink);
+  }
+</script>
+
+<main>
+  <h1 id="product-name">Loading...</h1>
+  <img id="product-image" src="" alt="" />
+  <p id="product-price"></p>
+  <button id="add-to-cart-btn">Add to Cart</button>
+</main>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get('id');
+
+  if (!productId) {
+    alert('No product ID specified.');
+    window.location.href = 'products.html';
+  }
+
+  fetch('data/products.json')
+    .then(res => res.json())
+    .then(products => {
+      const override = JSON.parse(localStorage.getItem('products_override'));
+      const allProducts = override || products;
+      const product = allProducts.find(p => p.id == productId);
+      if (!product) {
+        alert('Product not found.');
+        window.location.href = 'products.html';
+        return;
+      }
+
+      document.getElementById('product-name').textContent = product.name;
+      document.getElementById('product-image').src = product.image;
+      document.getElementById('product-image').alt = product.name;
+      document.getElementById('product-price').textContent = `Price: R${product.price.toFixed(2)}`;
+
+      const addButton = document.getElementById('add-to-cart-btn');
+      if (product.available === false) {
+        addButton.disabled = true;
+        addButton.textContent = 'Sold Out';
+        addButton.style.backgroundColor = '#ccc';
+        addButton.style.cursor = 'not-allowed';
+        return;
+      }
+
+      addButton.addEventListener('click', () => {
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingItem = cart.find(item => item.id === product.id);
+
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1
+          });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert('Added to cart!');
+      });
+    })
+    .catch(() => {
+      alert('Failed to load products.');
+      window.location.href = 'products.html';
+    });
+</script>
+
+</body>
+</html>
+
+

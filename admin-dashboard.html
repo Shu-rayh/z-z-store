@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .admin-product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .admin-product-card {
+      background: #f1f1f1;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .admin-product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .admin-product-card img {
+      max-width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .admin-product-card h2 {
+      font-size: 1.1rem;
+      margin: 10px 0 5px;
+    }
+
+    .admin-product-card p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .admin-product-card button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .admin-product-card button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav Bar Start -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="admin-dashboard.html" class="nav-logo">Z&amp;Z CONVIENCE STORE Admin</a>
+      <ul class="nav-links">
+        <li><a href="admin-dashboard.html">Products</a></li>
+        <li><a href="admin-orders.html">Admin Orders</a></li>
+        <li><a href="account.html">Account</a></li>
+      </ul>
+    </div>
+  </nav>
+  <!-- Nav Bar End -->
+
+  <main style="padding: 20px;">
+    <h1>Admin Product Control</h1>
+    <div id="admin-products" class="admin-product-grid"></div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    const user = getCurrentUser();
+    if (!user || user.role !== 'admin') {
+      alert("Access denied. Admins only.");
+      window.location.href = 'login.html';
+    }
+
+    const container = document.getElementById('admin-products');
+
+    fetch('data/products.json')
+      .then(res => res.json())
+      .then(defaultProducts => {
+        const override = JSON.parse(localStorage.getItem('products_override'));
+        const products = override || defaultProducts;
+        renderProducts(products);
+      });
+
+    function renderProducts(products) {
+      container.innerHTML = '';
+
+      products.forEach((product, index) => {
+        const card = document.createElement('div');
+        card.className = 'admin-product-card';
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}">
+          <h2>${product.name}</h2>
+          <p>Price: R${product.price.toFixed(2)}</p>
+          <p>Status: <strong>${product.available === false ? 'Sold Out' : 'Available'}</strong></p>
+          <button onclick="toggleAvailability(${index})">
+            ${product.available === false ? 'Mark as Available' : 'Mark as Sold Out'}
+          </button>
+        `;
+        container.appendChild(card);
+      });
+
+      localStorage.setItem('products_override', JSON.stringify(products));
+    }
+
+    function toggleAvailability(index) {
+      const products = JSON.parse(localStorage.getItem('products_override'));
+      products[index].available = !products[index].available;
+      localStorage.setItem('products_override', JSON.stringify(products));
+      renderProducts(products);
+    }
+  </script>
+</body>
+</html>
+
+

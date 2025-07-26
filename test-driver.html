@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Test Driver</title>
+</head>
+<body>
+  <h1>Create Test Driver User</h1>
+  <button id="create-driver-btn">Create Driver</button>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById('create-driver-btn').addEventListener('click', () => {
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+
+      // Check if driver already exists
+      if(users.some(u => u.username === 'driver1')) {
+        document.getElementById('message').textContent = "Driver already exists!";
+        return;
+      }
+
+      // Add new driver user
+      users.push({
+        id: Date.now(),
+        username: 'driver1',
+        password: 'driverpass',
+        role: 'driver'
+      });
+
+      localStorage.setItem('users', JSON.stringify(users));
+      document.getElementById('message').textContent = "Test driver created!";
+    });
+  </script>
+</body>
+</html>
